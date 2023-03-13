@@ -1,8 +1,5 @@
 package com.example.spotiflop;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
@@ -13,18 +10,25 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
+import java.io.File;
+import java.io.IOException;
+
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import java.io.File;
-import java.io.IOException;
 
-import java.io.IOException;
+import com.example.spotiflop.UploadTask;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String SERVER_URL = "http://127.0.0.1:5000/upload";
+
     private MediaRecorder recorder;
     private String outputFile;
     private boolean isRecording = false;
@@ -158,31 +162,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void uploadFile(String filePath) {
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .build();
-
-        MediaType mediaType = MediaType.parse("multipart/form-data");
-        RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("file", "recording.3gp",
-                        RequestBody.create(MediaType.parse("application/octet-stream"),
-                                new File(filePath)))
-                .build();
-        Request request = new Request.Builder()
-                .url("http://your-api-url.com/upload")
-                .method("POST", body)
-                .build();
-        try {
-            Response response = client.newCall(request).execute();
-            if (response.isSuccessful()) {
-                // File uploaded successfully
-            } else {
-                // File upload failed
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        System.out.println("----------------------------------------------------------------------");
+        System.out.println("----------------------------------------------------------------------");
+        System.out.println("----------------------------------------------------------------------");
+        System.out.println("----------------------------------------------------------------------");
+        System.out.println("----------------------------------------------------------------------");
+        System.out.println("----------------------------------------------------------------------");
+        System.out.println("----------------------------------------------------------------------");
+        System.out.println("----------------------------------------------------------------------");
+        System.out.println("----------------------------------------------------------------------");
+        System.out.println("----------------------------------------------------------------------");
+        new UploadTask().execute(outputFile);
     }
-
 
 }
 
