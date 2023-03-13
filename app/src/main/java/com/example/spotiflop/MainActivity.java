@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -13,7 +14,18 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import java.io.File;
 import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -74,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        outputFile = getExternalCacheDir().getAbsolutePath() + "/recording.3gp";
+        outputFile = getExternalCacheDir().getAbsolutePath() + "/recording.wav";
         recorder.setOutputFile(outputFile);
         try {
             recorder.prepare();
@@ -164,6 +176,47 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("----------------------------------------------------------------------");
         System.out.println("----------------------------------------------------------------------");
         new UploadTask().execute(outputFile);
+//        File file = new File(filePath);
+//        sendAudioFile(file);
+    }
+
+    private void sendAudioFile(File file) {
+        OkHttpClient client = new OkHttpClient();
+
+        System.out.println(file);
+
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("audio_file", file.getName(),
+                        RequestBody.create(MediaType.parse("audio/wav"), file))
+                .build();
+
+        Request request = new Request.Builder()
+                .url("http://192.168.1.17:5000/upload")
+                .post(requestBody)
+                .build();
+
+        Call call = client.newCall(request);
+
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+//                    Log.d(TAG, responseData);
+                    System.out.println(responseData);
+                } else {
+//                    Log.e(TAG, "Error: " + response.code() + " " + response.message());
+
+                    System.out.println("Error: " + response.code() + " " + response.message());
+                }
+            }
+        });
     }
 
 }

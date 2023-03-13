@@ -19,10 +19,11 @@ app = Flask(__name__)
 @app.route("/upload", methods=["POST"])
 def upload():
     if request.method == 'POST':
-        print("Post request")
-        file = request.files['file']
-        file.save(os.path.join('uploads', file.filename))
-        recognition(file.filename)
+        # print("Post request")
+        # file = request.files['file']
+        # file.save(os.path.join('uploads', file.filename))
+
+        recognition('D:\EPSI\B3\AtelierMobileIA\mobileIAapp\Api\demon.wav')
     else:
         print("Not Post request")
 
@@ -30,10 +31,9 @@ def upload():
 def recognition(filename):
     model = load_model(os.path.abspath('myModel.h5'))
 
-    audio_files = glob("./" + filename)
-    audio_file, sample_rate = librosa.load(
-        audio_files[0], sr=None, mono=True, offset=0.0, duration=3.0)
-    wnd_size = 2048
+    audio_files = glob(filename)
+    audio_file, sample_rate = librosa.load(audio_files[0], sr=None, mono=True, offset=0.0, duration=3.0)
+    wnd_size = 1024
     wnd_stride = 512
 
     chroma_stft = librosa.feature.chroma_stft(
@@ -82,10 +82,19 @@ def recognition(filename):
         sample.append(np.var(mfcc[i], axis=0))
 
     prediction = model.predict(np.array(sample).reshape(1, -1))
-    print(prediction)
+    musicStyles = ["Blues", "Classical", "Country", "Disco", "HipHop", "Jazz", "Metal", "Pop", "Reggae", "Rock"]
+    index = 0
+    for i in prediction[0]:
+        if i == 1.0:
+            genre = musicStyles[index]
+            print(genre)
+        else:
+            index +=1
 
-    return True
+    return jsonify(
+            style=genre,
+        )
 
 
 if __name__ == "__main__":
-    app.run(host="192.168.180.70")
+    app.run()
