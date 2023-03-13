@@ -24,7 +24,7 @@ public class UploadTask extends AsyncTask<String, Void, Boolean> {
                                 new File(filePath)))
                 .build();
         Request request = new Request.Builder()
-                .url("http://192.168.1.17:5000/upload")
+                .url("http://127.0.0.1:5000/upload")
                 .method("POST", body)
                 .build();
         try {
