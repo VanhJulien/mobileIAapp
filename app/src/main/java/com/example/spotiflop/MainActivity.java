@@ -13,21 +13,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import java.io.File;
 import java.io.IOException;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-
-import com.example.spotiflop.UploadTask;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String SERVER_URL = "http://127.0.0.1:5000/upload";
+    private static final String SERVER_URL = "http://192.168.180.70:5000/upload";
 
     private MediaRecorder recorder;
     private String outputFile;
