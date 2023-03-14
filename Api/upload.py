@@ -11,7 +11,6 @@ from keras.metrics import top_k_categorical_accuracy
 import keras.applications as apps
 from keras.applications.vgg16 import preprocess_input
 import librosa
-# from pydub import AudioSegment
 import soundfile as sf
 
 app = Flask(__name__)
@@ -33,7 +32,8 @@ def upload():
         print("Not Post request")
         genre = "Not Post request"
 
-    return jsonify(style=genre)
+    response = {'genre': genre}
+    return jsonify(response)
 
 
 def recognition(filename):
@@ -42,13 +42,9 @@ def recognition(filename):
     print(filename)
     audio_files = glob(filename)
     print(audio_files)
-#     audio_file, sample_rate = librosa.load(audio_files[0], sr=None, mono=True, offset=0.0, duration=3.0)
+    audio_file, sample_rate = librosa.load(audio_files[0], sr=None, mono=True, offset=0.0, duration=3.0)
 
-#     sound = AudioSegment.from_file(r'D:\EPSI\B3\AtelierMobileIA\mobileIAapp\Api\uploads\recording.wav', format="wav")
-#     audio_file = np.array(sound.get_array_of_samples())
-#     sample_rate = sound.frame_rate
-
-    audio_file, sample_rate = sf.read(filename)
+#     audio_file, sample_rate = sf.read(filename)
 
     wnd_size = 512
     wnd_stride = 264

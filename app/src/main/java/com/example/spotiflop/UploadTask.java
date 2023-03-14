@@ -1,6 +1,11 @@
 package com.example.spotiflop;
 
 import android.os.AsyncTask;
+import android.widget.TextView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -23,16 +28,16 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 
-public class UploadTask extends AsyncTask<String, Void, Boolean> {
+public class UploadTask extends AsyncTask<String, Void, String> {
+
+    private TextView genreTextView;
+
+    public UploadTask(TextView genreTextView) {
+        this.genreTextView = genreTextView;
+    }
 
     @Override
-    protected Boolean doInBackground(String... params) {
-//        String filePath = new File(params[0]).getAbsolutePath();
-//        OkHttpClient client = new OkHttpClient().newBuilder().build();
-//
-//        RequestBody formBody = new FormBody.Builder()
-//                .add("filePath", filePath)
-//                .build();
+    protected String doInBackground(String... params) {
 
         String filePath = new File(params[0]).getAbsolutePath();
         File file = new File(filePath);
@@ -55,61 +60,34 @@ public class UploadTask extends AsyncTask<String, Void, Boolean> {
             System.out.println(filePath);
             Response response = client.newCall(request).execute();
             if (response.isSuccessful()) {
-                // File path sent successfully
-                return true;
+                // File path sent successfull
+                String jsonResponse = response.body().string();
+                JSONObject json = new JSONObject(jsonResponse);
+                String genre = json.getString("genre");
+                System.out.println("Le genre est : " + genre);
+                return genre;
             } else {
+                String genre = "Pas de style trouvé";
                 // File path sending failed
-                return false;
+                return genre;
             }
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
+            String genre = "error";
+            return genre;
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    protected void onPostExecute(Boolean success) {
-        if (success) {
+    protected void onPostExecute(String response) {
+        if (response != null) {
+            genreTextView.setText("Le genre est : " + response);
             // File path sent successfully
         } else {
+            genreTextView.setText("Genre non trouvé");
             // File path sending failed
         }
     }
-
-//    OkHttpClient client = new OkHttpClient();
-//
-//    RequestBody requestBody = new MultipartBody.Builder()
-//            .setType(MultipartBody.FORM)
-//            .addFormDataPart("audio_file", file.getName(),
-//                    RequestBody.create(MediaType.parse("audio/wav"), file))
-//            .build();
-//
-//    Request request = new Request.Builder()
-//            .url("http://your_api_url.com/upload")
-//            .post(requestBody)
-//            .build();
-//
-//    Call call = client.newCall(request);
-//
-//    call.enqueue(new Callback() {
-//        @Override
-//        public void onFailure(Call call, IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        @Override
-//        public void onResponse(Call call, Response response) throws IOException {
-//            if (response.isSuccessful()) {
-//                String responseData = response.body().string();
-//                Log.d(TAG, responseData);
-//            } else {
-//                Log.e(TAG, "Error: " + response.code() + " " + response.message());
-//            }
-//        }
-//    }
-//
-//    @Override
-//    protected Boolean doInBackground(String... strings) {
-//        return null;
-//    });
 }

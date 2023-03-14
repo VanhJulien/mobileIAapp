@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -86,6 +87,11 @@ public class MainActivity extends AppCompatActivity {
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+        recorder.setAudioChannels(1);
+        recorder.setAudioSamplingRate(44100);
+        recorder.setAudioEncodingBitRate(192000);
+
         outputFile = getExternalCacheDir().getAbsolutePath() + "/recording.wav";
         recorder.setOutputFile(outputFile);
         try {
@@ -118,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
         // Enable play button
         playButton.setEnabled(true);
 
-        uploadFile(outputFile);
+        uploadFile();
     }
 
     private void startPlaying() {
@@ -164,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void uploadFile(String filePath) {
+    private void uploadFile() {
         System.out.println("----------------------------------------------------------------------");
         System.out.println("----------------------------------------------------------------------");
         System.out.println("----------------------------------------------------------------------");
@@ -175,49 +181,9 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("----------------------------------------------------------------------");
         System.out.println("----------------------------------------------------------------------");
         System.out.println("----------------------------------------------------------------------");
-        new UploadTask().execute(outputFile);
-//        File file = new File(filePath);
-//        sendAudioFile(file);
+//        new UploadTask().execute(outputFile);
+        TextView genreTextView = findViewById(R.id.genreTextView);
+        new UploadTask(genreTextView).execute(outputFile);
     }
-
-    private void sendAudioFile(File file) {
-        OkHttpClient client = new OkHttpClient();
-
-        System.out.println(file);
-
-        RequestBody requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("audio_file", file.getName(),
-                        RequestBody.create(MediaType.parse("audio/wav"), file))
-                .build();
-
-        Request request = new Request.Builder()
-                .url("http://192.168.1.17:5000/upload")
-                .post(requestBody)
-                .build();
-
-        Call call = client.newCall(request);
-
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    String responseData = response.body().string();
-//                    Log.d(TAG, responseData);
-                    System.out.println(responseData);
-                } else {
-//                    Log.e(TAG, "Error: " + response.code() + " " + response.message());
-
-                    System.out.println("Error: " + response.code() + " " + response.message());
-                }
-            }
-        });
-    }
-
 }
 
