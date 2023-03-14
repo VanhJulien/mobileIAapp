@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import os
 from glob import glob
 from argparse import ArgumentParser
@@ -11,7 +11,8 @@ from keras.metrics import top_k_categorical_accuracy
 import keras.applications as apps
 from keras.applications.vgg16 import preprocess_input
 import librosa
-
+# from pydub import AudioSegment
+import soundfile as sf
 
 app = Flask(__name__)
 
@@ -19,22 +20,38 @@ app = Flask(__name__)
 @app.route("/upload", methods=["POST"])
 def upload():
     if request.method == 'POST':
-        # print("Post request")
-        # file = request.files['file']
-        # file.save(os.path.join('uploads', file.filename))
+        print("Post request")
+        file = request.files['audio_file']
+        print(file)
+        file.save(os.path.join('uploads', file.filename))
+#         path = "./uploads/" + file.filename
+        genre = recognition(r"D:\EPSI\B3\AtelierMobileIA\mobileIAapp\Api\uploads\recording.wav")
 
-        recognition('D:\EPSI\B3\AtelierMobileIA\mobileIAapp\Api\demon.wav')
+#         genre = recognition('D:\EPSI\B3\AtelierMobileIA\mobileIAapp\Api\demon.wav')
+
     else:
         print("Not Post request")
+        genre = "Not Post request"
+
+    return jsonify(style=genre)
 
 
 def recognition(filename):
     model = load_model(os.path.abspath('myModel.h5'))
-
+    print("-----------------------------------------------------------------------------------------------------")
+    print(filename)
     audio_files = glob(filename)
-    audio_file, sample_rate = librosa.load(audio_files[0], sr=None, mono=True, offset=0.0, duration=3.0)
-    wnd_size = 1024
-    wnd_stride = 512
+    print(audio_files)
+#     audio_file, sample_rate = librosa.load(audio_files[0], sr=None, mono=True, offset=0.0, duration=3.0)
+
+#     sound = AudioSegment.from_file(r'D:\EPSI\B3\AtelierMobileIA\mobileIAapp\Api\uploads\recording.wav', format="wav")
+#     audio_file = np.array(sound.get_array_of_samples())
+#     sample_rate = sound.frame_rate
+
+    audio_file, sample_rate = sf.read(filename)
+
+    wnd_size = 512
+    wnd_stride = 264
 
     chroma_stft = librosa.feature.chroma_stft(
         y=audio_file, sr=sample_rate, n_fft=wnd_size, win_length=wnd_size, hop_length=wnd_size).flatten()
@@ -91,10 +108,8 @@ def recognition(filename):
         else:
             index +=1
 
-    return jsonify(
-            style=genre,
-        )
+    return genre
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="192.168.1.17")

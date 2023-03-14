@@ -27,17 +27,30 @@ public class UploadTask extends AsyncTask<String, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(String... params) {
+//        String filePath = new File(params[0]).getAbsolutePath();
+//        OkHttpClient client = new OkHttpClient().newBuilder().build();
+//
+//        RequestBody formBody = new FormBody.Builder()
+//                .add("filePath", filePath)
+//                .build();
+
         String filePath = new File(params[0]).getAbsolutePath();
+        File file = new File(filePath);
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
-        RequestBody formBody = new FormBody.Builder()
-                .add("filePath", filePath)
+        System.out.println("file : " + file);
+
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("audio_file", file.getName(),
+                        RequestBody.create(MediaType.parse("audio/wav"), file))
                 .build();
 
         Request request = new Request.Builder()
                 .url("http://192.168.1.17:5000/upload")
-                .post(formBody)
+                .post(requestBody)
                 .build();
+
         try {
             System.out.println(filePath);
             Response response = client.newCall(request).execute();
